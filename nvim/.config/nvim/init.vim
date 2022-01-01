@@ -4,18 +4,23 @@ Plug 'junegunn/fzf.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-surround'
-Plug 'Shougo/deoplete.nvim'
 Plug 'leafgarland/typescript-vim'
 Plug 'tpope/vim-commentary'
 Plug 'morhetz/gruvbox'
 Plug 'airblade/vim-gitgutter'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'mattn/emmet-vim'
+Plug 'preservim/nerdtree'
+Plug 'kchmck/vim-coffee-script'
+Plug 'jparise/vim-graphql'
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/completion-nvim'
 call plug#end()
 
 :set number
 :set guioptions=c
 :set noincsearch "Cursor does not jump at search highlighting
+let g:vim_json_conceal=0 "Disable quote concealing in JSON files
 let g:python3_host_prog='/usr/bin/python3'
 let g:loaded_matchparen=1
 "vim-javascript plugin enable highlighting for html/css
@@ -24,12 +29,12 @@ let g:javascript_enable_domhtmlcss=1
 let g:rainbow_active=1
 :set mouse=n
 
-set tabstop=4       " The width of a TAB is set to 4.
+set tabstop=2       " The width of a TAB is set to 4.
 		   " Still it is a \t. It is just that
 		   " Vim will interpret it to be having
 		   " a width of 4.
-set shiftwidth=4    " Indents will have a width of 4
-set softtabstop=4   " Sets the number of columns for a TAB
+set shiftwidth=2    " Indents will have a width of 4
+set softtabstop=2   " Sets the number of columns for a TAB
 set expandtab       " Expands tabs to spaces
 
 set termguicolors
@@ -80,3 +85,8 @@ set laststatus=2
 "Vim colorschemes
 set background=dark
 colo gruvbox
+
+lua << EOF
+require'lspconfig'.pyright.setup{}
+EOF
+lua require'lspconfig'.pyright.setup{on_attach=require'completion'.on_attach}
