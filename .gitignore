@@ -1,0 +1,6 @@
+.DS_Store
+*.swp
+*.swo
+
+# Neovim local noise
+nvim/.config/nvim/.netrwhist

@@ -1,16 +1,28 @@
+source ~/antigen.zsh
+
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle git
+antigen bundle pip
+antigen bundle command-not-found
+# Syntax highlighting bundle.
+antigen bundle zsh-users/zsh-syntax-highlighting
+# Better vim mode for cli
+antigen bundle jeffreytse/zsh-vi-mode
+
+# Tell Antigen that you're done.
+antigen apply
+
+eval "$(direnv hook zsh)"
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# Path to your oh-my-zsh installation.
-export ZSH=/home/ceres/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="xiong-chiamiov"
-
-alias nv="nvim"
-alias fd="fdfind"
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
@@ -67,6 +79,26 @@ plugins=(
   copydir
 )
 
+# Path to your oh-my-zsh installation.
+export ZSH=/home/ceres/.oh-my-zsh
+
+alias nv="nvim"
+alias fd="fdfind"
+alias zel="zellij"
+alias idea="/home/ceres/Desktop/idea-IU-242.23339.11/bin/idea.sh > /dev/null 2>&1 &"
+
+# Key bindings
+bindkey -v
+
+# Load pyenv
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+alias xcopy='xsel --clipboard'
+alias xpaste='xsel --output --clipboard'
+alias vv='fd --type f --hidden --exclude .git | fzf | xargs nvim'
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -98,10 +130,17 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-#Setting vi mode for the shell
-set -o vi
-
-export PATH=~/.local/bin:$PATH
+export PATH=~/.local/bin:/home/ceres/.cargo/bin:$PATH
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Prompt theme
+autoload -U promptinit; promptinit
+prompt adam1
 
