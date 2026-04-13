@@ -1,17 +1,13 @@
 # Dotfiles
 
-Personal dotfiles for:
-
-- Neovim
-- zsh
-- tmux
+Personal dotfiles for Neovim, zsh, and tmux.
 
 ## Layout
 
-- `nvim/.config/nvim`: Neovim config
-- `shell/.zshrc`: zsh config
-- `shell/.tmux.conf`: tmux config
-- `bootstrap.sh`: creates the expected symlinks in `$HOME`
+- `.config/nvim`: Neovim config
+- `.zshrc`: zsh config
+- `.tmux.conf`: tmux config
+- `bootstrap.sh`: links the repo into `$HOME`
 
 ## Install
 
@@ -21,7 +17,23 @@ cd ~/dotfiles
 ./bootstrap.sh
 ```
 
+`bootstrap.sh` will back up existing conflicting files into `~/.dotfiles-backup/<timestamp>/`.
+
+## Dependencies
+
+- `neovim` 0.12+
+- `tmux`
+- `zsh`
+- `git`
+- `node` and `npm`
+- `gcc`, `cc`, `make`
+- `tree-sitter`
+- `ripgrep`
+- `fd`
+- `fzf`
+
 ## Notes
 
-- Neovim config targets modern Neovim `0.12+`
-- Language servers are managed locally through Mason inside Neovim
+- The Neovim config uses `lazy.nvim`, Mason, LSP, Telescope, Treesitter, and modern Lua plugins.
+- Language servers are installed per-user through Mason.
+- Treesitter parsers compile locally, so the build tools above matter.

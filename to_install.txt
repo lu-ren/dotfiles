@@ -1,3 +1,10 @@
 fzf
-rg
-fd
+ripgrep
+fd-find
+tree-sitter-cli
+tmux
+zsh
+neovim
+nodejs
+npm
+build-essential

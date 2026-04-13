@@ -3,4 +3,4 @@
 *.swo
 
 # Neovim local noise
-nvim/.config/nvim/.netrwhist
+.config/nvim/.netrwhist
