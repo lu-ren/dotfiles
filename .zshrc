@@ -1,146 +1,166 @@
-source ~/antigen.zsh
+# Interactive shell guard
+[[ -o interactive ]] || return
 
-# Load the oh-my-zsh's library.
-antigen use oh-my-zsh
+autoload -Uz compinit colors vcs_info
 
-# Bundles from the default repo (robbyrussell's oh-my-zsh).
-antigen bundle git
-antigen bundle pip
-antigen bundle command-not-found
-# Syntax highlighting bundle.
-antigen bundle zsh-users/zsh-syntax-highlighting
-# Better vim mode for cli
-antigen bundle jeffreytse/zsh-vi-mode
+typeset -U path fpath
 
-# Tell Antigen that you're done.
-antigen apply
-
-eval "$(direnv hook zsh)"
-
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-
-# Set list of themes to load
-# Setting this variable when ZSH_THEME=random
-# cause zsh load theme from this variable instead of
-# looking in ~/.oh-my-zsh/themes/
-# An empty array have no effect
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  git
-  tmux
-  copydir
+path=(
+  "$HOME/.local/bin"
+  "$HOME/.cargo/bin"
+  "$HOME/.pyenv/bin"
+  "$HOME/.fzf/bin"
+  $path
 )
 
-# Path to your oh-my-zsh installation.
-export ZSH=/home/ceres/.oh-my-zsh
+export PATH
+export ZDOTDIR="${ZDOTDIR:-$HOME}"
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+export PAGER="less -FR"
+export LESSHISTFILE=-
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
 
-alias nv="nvim"
-alias fd="fdfind"
-alias zel="zellij"
-alias idea="/home/ceres/Desktop/idea-IU-242.23339.11/bin/idea.sh > /dev/null 2>&1 &"
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+setopt HIST_VERIFY
+setopt SHARE_HISTORY
+setopt EXTENDED_HISTORY
+setopt INTERACTIVE_COMMENTS
+setopt NO_BEEP
 
-# Key bindings
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+HISTSIZE=100000
+SAVEHIST=100000
+
+mkdir -p "${HISTFILE:h}" "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}"
+colors
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+
 bindkey -v
 
-# Load pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+source_if_exists() {
+  local file="$1"
+  [[ -r "$file" ]] && source "$file"
+}
 
-alias xcopy='xsel --clipboard'
-alias xpaste='xsel --output --clipboard'
-alias vv='fd --type f --hidden --exclude .git | fzf | xargs nvim'
+PLUGIN_ROOTS=(
+  "$HOME/.antigen/bundles"
+  "${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
+)
 
-source $ZSH/oh-my-zsh.sh
+plugin_file() {
+  local relative="$1"
+  local root
+  for root in "${PLUGIN_ROOTS[@]}"; do
+    [[ -r "$root/$relative" ]] && print -r -- "$root/$relative" && return 0
+  done
+  return 1
+}
 
-# User configuration
+source_plugin() {
+  local relative="$1"
+  local file
+  file="$(plugin_file "$relative")" || return 0
+  source "$file"
+}
 
-# export MANPATH="/usr/local/man:$MANPATH"
+source_plugin "robbyrussell/oh-my-zsh/lib/git.zsh"
+source_plugin "robbyrussell/oh-my-zsh/plugins/git/git.plugin.zsh"
+source_plugin "robbyrussell/oh-my-zsh/plugins/pip/pip.plugin.zsh"
+source_plugin "robbyrussell/oh-my-zsh/plugins/command-not-found/command-not-found.plugin.zsh"
 
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
+ZVM_CURSOR_STYLE_ENABLED=true
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
+if [[ -t 0 && -t 1 ]]; then
+  source_plugin "zsh-users/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+  source_plugin "jeffreytse/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
+fi
 
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
+source_if_exists "$HOME/.fzf.zsh"
 
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
+if (( $+commands[direnv] )); then
+  eval "$(direnv hook zsh)"
+fi
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-export PATH=~/.local/bin:/home/ceres/.cargo/bin:$PATH
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
+if [[ -d "$HOME/.pyenv" ]] && (( $+commands[pyenv] )); then
+  eval "$(pyenv init - zsh)"
+  if [[ -d "$HOME/.pyenv/plugins/pyenv-virtualenv" ]]; then
+    eval "$(pyenv virtualenv-init -)"
+  fi
+fi
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+lazy_load_nvm() {
+  unset -f nvm node npm npx pnpm corepack yarn
+  source_if_exists "$NVM_DIR/nvm.sh"
+  source_if_exists "$NVM_DIR/bash_completion"
+}
 
-# Prompt theme
-autoload -U promptinit; promptinit
-prompt adam1
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+  nvm() { lazy_load_nvm; nvm "$@"; }
+  node() { lazy_load_nvm; command node "$@"; }
+  npm() { lazy_load_nvm; command npm "$@"; }
+  npx() { lazy_load_nvm; command npx "$@"; }
+  pnpm() { lazy_load_nvm; command pnpm "$@"; }
+  corepack() { lazy_load_nvm; command corepack "$@"; }
+  yarn() { lazy_load_nvm; command yarn "$@"; }
+fi
 
+if (( ! $+commands[fd] && $+commands[fdfind] )); then
+  alias fd='fdfind'
+fi
+
+alias nv='nvim'
+alias v='nvim'
+alias zel='zellij'
+alias lg='lazygit'
+alias xcopy='xsel --clipboard'
+alias xpaste='xsel --output --clipboard'
+alias idea='/home/ceres/Desktop/idea-IU-242.23339.11/bin/idea.sh >/dev/null 2>&1 &'
+
+vv() {
+  local finder file
+  finder="${commands[fd]:-${commands[fdfind]}}"
+  (( ${+commands[fzf]} )) || return 1
+  [[ -n "$finder" ]] || return 1
+  file="$("$finder" --type f --hidden --exclude .git 2>/dev/null | fzf)" || return 0
+  [[ -n "$file" ]] && "$EDITOR" "$file"
+}
+
+mkcd() {
+  mkdir -p -- "$1" && cd -- "$1"
+}
+
+if [[ -t 0 && -t 1 ]]; then
+  autoload -Uz edit-command-line
+  zle -N edit-command-line
+  bindkey '^e' edit-command-line
+fi
+
+zstyle ':vcs_info:git:*' enable git
+zstyle ':vcs_info:git:*' formats ' %F{244}[%b]%f'
+zstyle ':vcs_info:git:*' actionformats ' %F{214}[%b|%a]%f'
+
+precmd() {
+  vcs_info
+}
+
+setopt PROMPT_SUBST
+PROMPT='%F{39}%n@%m%f %F{76}%~%f${vcs_info_msg_0_} %(?.%f.%F{160}[%?]%f)
+%# '
+
+if [[ -t 0 && -t 1 ]]; then
+  source_plugin "zsh-users/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
+fi
